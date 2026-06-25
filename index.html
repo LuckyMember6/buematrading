@@ -20,8 +20,8 @@
   --border:  #e0e0e0;
   --red:     #e8001d;
 }
-html { scroll-behavior: smooth; }
-body { font-family: 'Barlow', sans-serif; background: var(--white); color: var(--black); overflow-x: hidden; }
+html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
+body { font-family: 'Barlow', sans-serif; background: var(--white); color: var(--black); overflow-x: hidden; max-width: 100%; position: relative; }
 
 /* ── NAV ── */
 nav {
@@ -31,6 +31,7 @@ nav {
   padding: 0 48px; height: 76px;
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+  overflow: hidden; max-width: 100vw; box-sizing: border-box;
 }
 .nav-logo { display: flex; align-items: center; text-decoration: none; }
 .nav-logo img { height: 52px; width: auto; object-fit: contain; }
@@ -63,6 +64,7 @@ nav {
   text-align: center;
   /* curved bottom edge like the reference */
   clip-path: ellipse(140% 100% at 50% 0%);
+  overflow: hidden;
 }
 .hero-claim { margin-bottom: 30px; }
 .hero-claim-sub {
@@ -350,6 +352,11 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   .nav-logo img { height: 38px; }
   .nav-links { display: none; }
   .nav-partner { height: 26px; max-width: 110px; }
+  .hero-top { padding: 32px 20px 100px; }
+  .trust-item { padding: 0 14px; gap: 10px; }
+  .trust-icon { width: 36px; height: 36px; }
+  .trust-text strong { font-size: 14px; }
+  .trust-text span { font-size: 12px; }
   .usp-strip { grid-template-columns: 1fr 1fr; padding: 24px; gap: 20px; }
   .usp-item { border-right: none; padding: 0; }
   .section, footer { padding: 40px 20px; }
@@ -443,10 +450,11 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 
 /* Sehr kleine Bildschirme */
 @media (max-width: 640px) {
-  nav { padding: 0 10px; height: 64px; }
-  .nav-logo img { height: 36px; }
-  .nav-cta { padding: 7px 12px; font-size: 10px; letter-spacing: 1px; }
-  .nav-partner { height: 20px; max-width: 90px; }
+  nav { padding: 0 10px; height: 64px; min-width: 0; }
+  .nav-logo img { height: 34px; }
+  .nav-logo { flex-shrink: 0; }
+  .nav-cta { padding: 7px 10px; font-size: 9px; letter-spacing: 0.8px; flex-shrink: 0; }
+  .nav-partner { height: 18px; max-width: 80px; flex-shrink: 1; }
   .section, footer { padding: 32px 16px; }
   .form-inner { max-width: calc(100% - 32px); }
 }
