@@ -374,12 +374,12 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 /* Paper stage positioning */
 .paper-stage { /* positioning handled by media query */ }
 
-.paper-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: end; max-width: 1040px; margin: 40px auto 0; }
+.paper-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; max-width: 1040px; margin: 40px auto 0; }
 .paper-stage {
-  position: relative; min-height: 420px;
-  display: flex; align-items: flex-end; justify-content: center;
-  padding-bottom: 10px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
   background: radial-gradient(ellipse 60% 38% at 50% 96%, rgba(45,182,204,0.12) 0%, transparent 72%);
+  aspect-ratio: 720 / 438;
 }
 .paper-panel { display: flex; flex-direction: column; padding-bottom: 30px; }
 .paper-amount { font-family: 'Barlow Condensed', sans-serif; font-size: 42px; font-weight: 800; line-height: 1; color: var(--black); }
@@ -405,8 +405,9 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: contain; object-position: center bottom;
 }
-.paper-video { opacity: 0; pointer-events: none; }
+.paper-video { opacity: 0; pointer-events: none; transition: none; }
 .paper-video.playing { opacity: 1; }
+.paper-poster { transition: none; }
 .paper-poster.hidden { opacity: 0; }
 
 
@@ -445,7 +446,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 
 /* Desktop: Paper-Video höher */
 @media (min-width: 901px) {
-  .paper-stage { margin-top: -240px; }
+  .paper-stage { margin-top: -120px; }
 }
 
 /* Sehr kleine Bildschirme */
@@ -469,7 +470,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   </a>
   <ul class="nav-links">
     <li><a href="#home" class="active" onclick="navClick(event,this)">Home</a></li>
-    <li><a href="#home" onclick="navClick(event,this)">Produkte</a></li>
+    <li><a href="#kopiergeraete" onclick="navClick(event,this)">Kopiergeräte</a></li>
     <li><a href="#kopierpapier" onclick="navClick(event,this)">Kopierpapier</a></li>
     <li><a href="#kontakt" onclick="navClick(event,this)">Kontakt</a></li>
   </ul>
@@ -478,6 +479,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 
 <!-- HERO -->
 <section id="home" class="scroll-target">
+<span id="kopiergeraete" style="display:block; position:relative; top:-20px; visibility:hidden;"></span>
 <div class="hero-carousel-section">
 
   <!-- Dark gradient top half with claim + trust row -->
@@ -1091,8 +1093,6 @@ function paperStep(dir) {
 
   paperSetLocked(true);
   vid.src = src;
-  vid.classList.add('playing');
-  img.classList.add('hidden');
 
   const onEnd = () => {
     vid.removeEventListener('ended', onEnd);
@@ -1100,9 +1100,19 @@ function paperStep(dir) {
     paperShowPoster(paperTier);
     paperSetLocked(false);
   };
-  vid.addEventListener('ended', onEnd);
+
+  const onCanPlay = () => {
+    vid.removeEventListener('canplay', onCanPlay);
+    // Only hide poster and show video once first frame is ready
+    img.classList.add('hidden');
+    vid.classList.add('playing');
+    vid.addEventListener('ended', onEnd);
+  };
+
+  vid.addEventListener('canplay', onCanPlay);
   const p = vid.play();
   if (p && p.catch) p.catch(()=>{ // autoplay/load failure: jump to target poster
+    vid.removeEventListener('canplay', onCanPlay);
     vid.removeEventListener('ended', onEnd);
     paperTier = target; paperShowPoster(paperTier); paperSetLocked(false);
   });
