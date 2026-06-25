@@ -142,21 +142,23 @@ nav {
   display: block;
   filter: drop-shadow(0 14px 32px rgba(0,0,0,0.16));
 }
-.carousel-item-label {
-  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
-  color: var(--gray2); margin-top: 6px; text-align: center;
-  padding-bottom: 4px; opacity: 0; transition: opacity 0.4s;
-  text-transform: uppercase; white-space: nowrap;
+.carousel-item-logo {
+  height: 18px; width: auto; max-width: 100%; object-fit: contain;
+  margin-top: 8px; opacity: 0.35; transition: opacity 0.4s;
+  filter: grayscale(1);
 }
-.carousel-item.prev1 .carousel-item-label,
-.carousel-item.next1 .carousel-item-label { opacity: 0.7; }
+.carousel-item.prev1 .carousel-item-logo,
+.carousel-item.next1 .carousel-item-logo { opacity: 0.6; filter: grayscale(0.4); }
+.carousel-item.active .carousel-item-logo { opacity: 0; }
 
 /* Hero info */
 .hero-info {
   text-align: center; padding: 4px 20px 0;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   background: transparent; position: relative; z-index: 10;
+  transition: opacity 0.35s ease;
 }
+.hero-info.switching { opacity: 0; }
 .hero-eyebrow {
   font-size: 11px; font-weight: 700; letter-spacing: 3px;
   text-transform: uppercase; color: var(--cyan); margin-bottom: 2px;
@@ -180,7 +182,8 @@ nav {
   display: flex; justify-content: center; gap: 0;
   padding: 18px 40px; border-top: 1px solid var(--border);
   margin-top: 14px; width: 100%; background: transparent;
-}
+ transition: opacity 0.35s ease; }
+.hero-specs.switching { opacity: 0; }
 .hero-spec {
   display: flex; align-items: center; gap: 14px;
   padding: 0 36px; border-right: 1px solid var(--border);
@@ -374,12 +377,12 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 /* Paper stage positioning */
 .paper-stage { /* positioning handled by media query */ }
 
-.paper-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; max-width: 1040px; margin: 40px auto 0; }
+.paper-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: end; max-width: 1040px; margin: 40px auto 0; }
 .paper-stage {
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
+  position: relative; min-height: 420px;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 10px;
   background: radial-gradient(ellipse 60% 38% at 50% 96%, rgba(45,182,204,0.12) 0%, transparent 72%);
-  aspect-ratio: 720 / 438;
 }
 .paper-panel { display: flex; flex-direction: column; padding-bottom: 30px; }
 .paper-amount { font-family: 'Barlow Condensed', sans-serif; font-size: 42px; font-weight: 800; line-height: 1; color: var(--black); }
@@ -405,9 +408,8 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: contain; object-position: center bottom;
 }
-.paper-video { opacity: 0; pointer-events: none; transition: none; }
+.paper-video { opacity: 0; pointer-events: none; }
 .paper-video.playing { opacity: 1; }
-.paper-poster { transition: none; }
 .paper-poster.hidden { opacity: 0; }
 
 
@@ -446,7 +448,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 
 /* Desktop: Paper-Video höher */
 @media (min-width: 901px) {
-  .paper-stage { margin-top: -120px; }
+  .paper-stage { margin-top: -240px; }
 }
 
 /* Sehr kleine Bildschirme */
@@ -470,7 +472,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   </a>
   <ul class="nav-links">
     <li><a href="#home" class="active" onclick="navClick(event,this)">Home</a></li>
-    <li><a href="#kopiergeraete" onclick="navClick(event,this)">Kopiergeräte</a></li>
+    <li><a href="#home" onclick="navClick(event,this)">Produkte</a></li>
     <li><a href="#kopierpapier" onclick="navClick(event,this)">Kopierpapier</a></li>
     <li><a href="#kontakt" onclick="navClick(event,this)">Kontakt</a></li>
   </ul>
@@ -479,7 +481,6 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 
 <!-- HERO -->
 <section id="home" class="scroll-target">
-<span id="kopiergeraete" style="display:block; position:relative; top:-20px; visibility:hidden;"></span>
 <div class="hero-carousel-section">
 
   <!-- Dark gradient top half with claim + trust row -->
@@ -836,7 +837,7 @@ function buildCarousel() {
       <div class="carousel-img-wrap">
         <img src="${PRINTER_IMG}" alt="Toshiba e-STUDIO ${p.model}" draggable="false">
       </div>
-      <div class="carousel-item-label">e&#8209;STUDIO ${p.model}</div>
+      <img class="carousel-item-logo" src="${MODEL_LOGOS[p.model]}" alt="e-STUDIO ${p.model}" draggable="false">
     </div>
   `).join('');
   updateCarousel(false);
@@ -879,7 +880,25 @@ function updateCarousel(animate) {
     const img = el.querySelector('img');
     if (img) img.style.maxHeight = (96 * (SCALE[i] || 1)) + '%';
   });
-  const p = products[cur];
+  // Hero-info (central model name/badge/specs): fade out during slide,
+  // swap content while hidden, fade back in once the device has settled & enlarged.
+  if (animate) {
+    const info = document.querySelector('.hero-info');
+    const specs = document.getElementById('heroSpecs');
+    info.classList.add('switching');
+    if (specs) specs.classList.add('switching');
+    clearTimeout(window._heroInfoTimer);
+    window._heroInfoTimer = setTimeout(() => {
+      updateHeroInfo(products[cur]);
+      info.classList.remove('switching');
+      if (specs) specs.classList.remove('switching');
+    }, 560);
+  } else {
+    updateHeroInfo(products[cur]);
+  }
+}
+
+function updateHeroInfo(p) {
   const logoEl = document.getElementById('heroModelLogo');
   logoEl.src = MODEL_LOGOS[p.model];
   logoEl.alt = 'e-STUDIO ' + p.model;
@@ -1093,6 +1112,8 @@ function paperStep(dir) {
 
   paperSetLocked(true);
   vid.src = src;
+  vid.classList.add('playing');
+  img.classList.add('hidden');
 
   const onEnd = () => {
     vid.removeEventListener('ended', onEnd);
@@ -1100,19 +1121,9 @@ function paperStep(dir) {
     paperShowPoster(paperTier);
     paperSetLocked(false);
   };
-
-  const onCanPlay = () => {
-    vid.removeEventListener('canplay', onCanPlay);
-    // Only hide poster and show video once first frame is ready
-    img.classList.add('hidden');
-    vid.classList.add('playing');
-    vid.addEventListener('ended', onEnd);
-  };
-
-  vid.addEventListener('canplay', onCanPlay);
+  vid.addEventListener('ended', onEnd);
   const p = vid.play();
   if (p && p.catch) p.catch(()=>{ // autoplay/load failure: jump to target poster
-    vid.removeEventListener('canplay', onCanPlay);
     vid.removeEventListener('ended', onEnd);
     paperTier = target; paperShowPoster(paperTier); paperSetLocked(false);
   });
