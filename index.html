@@ -356,6 +356,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   .nav-links { display: none; }
   .nav-partner { height: 26px; max-width: 110px; }
   .hero-top { padding: 32px 20px 100px; }
+  .carousel-outer { margin-top: -40px; }
   .trust-item { padding: 0 14px; gap: 10px; }
   .trust-icon { width: 36px; height: 36px; }
   .trust-text strong { font-size: 14px; }
@@ -408,8 +409,9 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: contain; object-position: center center;
 }
-.paper-video { opacity: 0; pointer-events: none; }
+.paper-video { opacity: 0; pointer-events: none; transition: none; }
 .paper-video.playing { opacity: 1; }
+.paper-poster { transition: none; }
 .paper-poster.hidden { opacity: 0; }
 
 
@@ -426,7 +428,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 .stage-arrow svg { width: 26px; height: 26px; }
 .stage-arrow:hover:not(:disabled) { background: var(--cyan); border-color: var(--cyan); color: #fff; box-shadow: 0 6px 20px rgba(45,182,204,0.35); }
 .stage-arrow:disabled { opacity: 0; pointer-events: none; }
-.stage-arrow-left { left: 4px; }
+.stage-arrow-left { left: 4px; width: auto; border-radius: 28px; padding: 0 16px 0 18px; gap: 4px; }
 .stage-arrow-right { right: 4px; width: auto; border-radius: 28px; padding: 0 18px 0 16px; gap: 4px; }
 .stage-arrow-hint { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .stage-arrow.locked { opacity: 0.25; pointer-events: none; }
@@ -454,6 +456,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 /* Sehr kleine Bildschirme */
 @media (max-width: 640px) {
   nav { padding: 0 10px; height: 64px; min-width: 0; }
+  .carousel-outer { margin-top: -20px; }
   .nav-logo img { height: 34px; }
   .nav-logo { flex-shrink: 0; }
   .nav-cta { padding: 7px 10px; font-size: 9px; letter-spacing: 0.8px; flex-shrink: 0; }
@@ -472,7 +475,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   </a>
   <ul class="nav-links">
     <li><a href="#home" class="active" onclick="navClick(event,this)">Home</a></li>
-    <li><a href="#home" onclick="navClick(event,this)">Produkte</a></li>
+    <li><a href="#kopiergeraete" onclick="navClick(event,this)">Kopiergeräte</a></li>
     <li><a href="#kopierpapier" onclick="navClick(event,this)">Kopierpapier</a></li>
     <li><a href="#kontakt" onclick="navClick(event,this)">Kontakt</a></li>
   </ul>
@@ -481,6 +484,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 
 <!-- HERO -->
 <section id="home" class="scroll-target">
+<span id="kopiergeraete" style="display:block; position:relative; top:-20px; visibility:hidden;"></span>
 <div class="hero-carousel-section">
 
   <!-- Dark gradient top half with claim + trust row -->
@@ -576,6 +580,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
       <video class="paper-video" id="paperVideo" muted playsinline preload="auto"></video>
       <button class="stage-arrow stage-arrow-left" id="stageLess" onclick="paperStep(-1)" aria-label="Weniger Kartons" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+        <span class="stage-arrow-hint">weniger</span>
       </button>
       <button class="stage-arrow stage-arrow-right" id="stageMore" onclick="paperStep(1)" aria-label="Mehr Kartons">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
@@ -892,7 +897,7 @@ function updateCarousel(animate) {
       updateHeroInfo(products[cur]);
       info.classList.remove('switching');
       if (specs) specs.classList.remove('switching');
-    }, 560);
+    }, 280);
   } else {
     updateHeroInfo(products[cur]);
   }
@@ -1112,8 +1117,6 @@ function paperStep(dir) {
 
   paperSetLocked(true);
   vid.src = src;
-  vid.classList.add('playing');
-  img.classList.add('hidden');
 
   const onEnd = () => {
     vid.removeEventListener('ended', onEnd);
@@ -1121,9 +1124,19 @@ function paperStep(dir) {
     paperShowPoster(paperTier);
     paperSetLocked(false);
   };
-  vid.addEventListener('ended', onEnd);
+
+  const onCanPlay = () => {
+    vid.removeEventListener('canplay', onCanPlay);
+    // Only hide poster and show video once first frame is ready (no white flash)
+    img.classList.add('hidden');
+    vid.classList.add('playing');
+    vid.addEventListener('ended', onEnd);
+  };
+
+  vid.addEventListener('canplay', onCanPlay);
   const p = vid.play();
   if (p && p.catch) p.catch(()=>{ // autoplay/load failure: jump to target poster
+    vid.removeEventListener('canplay', onCanPlay);
     vid.removeEventListener('ended', onEnd);
     paperTier = target; paperShowPoster(paperTier); paperSetLocked(false);
   });
