@@ -402,6 +402,8 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 .paper-video.playing { opacity: 1; }
 .paper-poster.hidden { opacity: 0; }
 
+
+
 /* Stage overlay arrows */
 .stage-arrow {
   position: absolute; top: 50%; transform: translateY(-50%);
@@ -419,8 +421,9 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 .stage-arrow-hint { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .stage-arrow.locked { opacity: 0.25; pointer-events: none; }
 @media (max-width: 900px) {
-  .paper-wrap { grid-template-columns: 1fr; gap: 32px; }
-  .paper-stage { height: 340px; }
+  .paper-wrap { grid-template-columns: 1fr; gap: 24px; }
+  .paper-stage { height: 56vw; max-height: 300px; min-height: unset; background: none; }
+  .paper-poster, .paper-video { object-position: center center; }
 }
 
 /* Landscape mobile: side-by-side to bring video closer to text */
@@ -431,10 +434,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 }
 
 /* Desktop: Kopierpapier Video höher */
-/* Mobile: Paper-Video näher am Text */
-@media (max-width: 900px) and (orientation: portrait) {
-  .paper-stage { margin-top: 0; }
-}
+/* Mobile portrait: handled above in video section */
 
 /* Desktop: Paper-Video höher */
 @media (min-width: 901px) {
