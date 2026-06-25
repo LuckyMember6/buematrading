@@ -41,7 +41,7 @@ nav {
 .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
 .nav-cta { background: var(--cyan); color: var(--white); border: none; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 22px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
 .nav-cta:hover { background: var(--cyan-d); }
-.nav-partner { height: 34px; width: auto; object-fit: contain; opacity: 0.9; }
+.nav-partner { height: 34px; width: auto; max-width: 120px; object-fit: contain; opacity: 0.9; }
 
 /* ── HERO ── */
 #home { padding-top: 76px; min-height: 100vh; display: flex; flex-direction: column; background: var(--white); }
@@ -349,7 +349,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   nav { padding: 0 12px; height: 64px; }
   .nav-logo img { height: 38px; }
   .nav-links { display: none; }
-  .nav-partner { height: 26px; }
+  .nav-partner { height: 26px; max-width: 110px; }
   .usp-strip { grid-template-columns: 1fr 1fr; padding: 24px; gap: 20px; }
   .usp-item { border-right: none; padding: 0; }
   .section, footer { padding: 40px 20px; }
@@ -423,10 +423,16 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   .paper-stage { height: 340px; }
 }
 
+/* Landscape mobile: side-by-side to bring video closer to text */
+@media (max-width: 900px) and (orientation: landscape) {
+  .paper-wrap { grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+  .paper-stage { height: 280px; margin-top: 0; }
+  .paper-panel { padding-bottom: 0; }
+}
 
 /* Desktop: Kopierpapier Video höher */
 /* Mobile: Paper-Video näher am Text */
-@media (max-width: 900px) {
+@media (max-width: 900px) and (orientation: portrait) {
   .paper-stage { margin-top: 0; }
 }
 
@@ -438,9 +444,9 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
 /* Sehr kleine Bildschirme */
 @media (max-width: 640px) {
   nav { padding: 0 10px; height: 64px; }
-  .nav-logo img { height: 40px; }
-  .nav-cta { padding: 8px 16px; font-size: 10px; }
-  .nav-partner { height: 22px; }
+  .nav-logo img { height: 36px; }
+  .nav-cta { padding: 7px 12px; font-size: 10px; letter-spacing: 1px; }
+  .nav-partner { height: 20px; max-width: 90px; }
   .section, footer { padding: 32px 16px; }
   .form-inner { max-width: calc(100% - 32px); }
 }
