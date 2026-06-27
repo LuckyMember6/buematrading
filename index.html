@@ -567,7 +567,7 @@ footer { background: var(--black); color: var(--white); padding: 52px 80px 32px;
   <div class="hero-top">
     <div class="hero-claim">
       <div class="hero-claim-sub">Offizieller TOSHIBA Fachhändler mit</div>
-      <div class="hero-claim-main"><span class="claim-cyan">100%</span> <span class="claim-white">WIR</span></div>
+      <div class="hero-claim-main"><span class="claim-cyan" id="hero-counter">0%</span> <span class="claim-white">WIR</span></div>
     </div>
     <div class="hero-trust">
       <div class="trust-item">
@@ -1041,6 +1041,34 @@ document.querySelector('.hero-carousel-section').addEventListener('touchend',e=>
 
 window.addEventListener('resize',()=>updateCarousel(false));
 
+// ── Karussell Auto-Advance ──────────────────────────────────────────
+// Wechselt alle 5 Sekunden automatisch zum nächsten Gerät.
+// Jeder Klick (Pfeil, Item, Swipe) setzt den Timer zurück.
+(function(){
+  var _autoTimer = null;
+  function startAuto(){
+    clearTimeout(_autoTimer);
+    _autoTimer = setTimeout(function(){
+      moveCarousel(1);
+      startAuto();            // nach dem Wechsel Timer neu starten
+    }, 5000);
+  }
+  // Original moveCarousel wrappen, damit jeder manuelle Klick den Timer resettet
+  var _origMove = window.moveCarousel;
+  window.moveCarousel = function(dir){
+    _origMove(dir);
+    startAuto();              // Timer zurücksetzen
+  };
+  // Touch-Swipe ebenfalls abfangen
+  var _origItem = window.itemClicked;
+  window.itemClicked = function(idx){
+    _origItem(idx);
+    startAuto();
+  };
+  // Starten sobald die Seite fertig geladen ist
+  window.addEventListener('load', startAuto);
+})();
+
 function buildProductsGrid() {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
@@ -1482,5 +1510,22 @@ document.getElementById('paperFormModal').addEventListener('click', function(e){
 document.getElementById('paperConfirmModal').addEventListener('click', function(e){
   if (e.target === this) closePaperConfirm();
 });
+</script>
+
+<script>
+(function(){
+  var el = document.getElementById('hero-counter');
+  if(!el) return;
+  var duration = 3000;
+  var start = null;
+  function step(ts){
+    if(!start) start = ts;
+    var progress = Math.min((ts - start) / duration, 1);
+    el.textContent = Math.floor(progress * 100) + '%';
+    if(progress < 1){ requestAnimationFrame(step); }
+    else { el.textContent = '100%'; }
+  }
+  requestAnimationFrame(step);
+})();
 </script>
 </body></html>
