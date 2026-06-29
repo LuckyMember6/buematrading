@@ -31,7 +31,7 @@ body { font-family: 'Barlow', sans-serif; background: var(--white); color: var(-
 /* ── NAV ── */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
+  background: #ffffff;
   border-bottom: 1px solid var(--border);
   padding: 0 48px; height: 76px;
   display: flex; align-items: center; justify-content: space-between;
@@ -50,10 +50,10 @@ nav {
 .nav-partner { height: 34px; width: auto; max-width: 120px; object-fit: contain; opacity: 0.9; }
 
 /* ── HERO ── */
-#home { padding-top: 76px; min-height: 100vh; display: flex; flex-direction: column; background: var(--white); }
+#home { padding-top: 76px; display: flex; flex-direction: column; background: var(--white); }
 
 .hero-carousel-section {
-  flex: 1; position: relative;
+  position: relative;
   display: flex; flex-direction: column;
   background: var(--white);
   overflow: hidden;
@@ -65,7 +65,7 @@ nav {
     radial-gradient(120% 90% at 78% 30%, #1d8db8 0%, transparent 55%),
     radial-gradient(130% 120% at 20% 0%, #0e3a5c 0%, transparent 60%),
     linear-gradient(170deg, #0a2942 0%, #0d3553 45%, #11486e 100%);
-  padding: 44px 40px 120px;
+  padding: 44px 40px 200px;
   text-align: center;
   /* curved bottom edge like the reference */
   clip-path: ellipse(140% 100% at 50% 0%);
@@ -112,7 +112,7 @@ nav {
 .carousel-outer {
   position: relative; width: 100%;
   flex: 1; display: flex; flex-direction: column;
-  overflow: hidden; min-height: 380px; max-height: 460px; margin-top: -125px; z-index: 5;
+  overflow: hidden; min-height: 380px; max-height: 460px; margin-top: -105px; z-index: 5;
   /* fade edges so neighbours dissolve into the page */
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%);
           mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%);
@@ -224,7 +224,11 @@ nav {
 
 /* ── USP STRIP ── */
 .usp-strip {
-  background: var(--black); color: var(--white);
+  background:
+    radial-gradient(120% 90% at 78% 30%, #1d8db8 0%, transparent 55%),
+    radial-gradient(130% 120% at 20% 0%, #0e3a5c 0%, transparent 60%),
+    linear-gradient(170deg, #0a2942 0%, #0d3553 45%, #11486e 100%);
+  color: var(--white);
   padding: 36px 80px;
   display: grid; grid-template-columns: repeat(4,1fr);
 }
@@ -1522,7 +1526,7 @@ document.getElementById('paperConfirmModal').addEventListener('click', function(
 (function(){
   var el = document.getElementById('hero-counter');
   if(!el) return;
-  var duration = 3000;
+  var duration = 1500;
   var start = null;
   function step(ts){
     if(!start) start = ts;
