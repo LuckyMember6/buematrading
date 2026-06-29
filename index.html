@@ -1162,14 +1162,68 @@ function buildDeviceChecks(preselect) {
 }
 function toggleCheck(i) { document.getElementById('dc_'+i).classList.toggle('checked'); }
 
-function submitForm() {
-  if(!document.getElementById('fName').value.trim()) { alert('Bitte Name eingeben.'); return; }
-  if(!document.getElementById('fEmail').value.trim()) { alert('Bitte E-Mail eingeben.'); return; }
-  if(!document.getElementById('fDsgvo').checked) { alert('Bitte Datenschutzerklärung bestätigen.'); return; }
-  const sel=products.filter((_,i)=>document.getElementById('dc_'+i)?.classList.contains('checked'));
-  if(!sel.length) { alert('Bitte mindestens ein Gerät auswählen.'); return; }
-  document.getElementById('formContent').style.display='none';
-  document.getElementById('formSuccess').classList.add('show');
+async function submitForm() {
+  if (!document.getElementById('fName').value.trim()) { alert('Bitte Name eingeben.'); return; }
+  if (!document.getElementById('fEmail').value.trim()) { alert('Bitte E-Mail eingeben.'); return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(document.getElementById('fEmail').value.trim())) {
+    alert('Bitte eine gültige E-Mail-Adresse eingeben.'); return;
+  }
+  if (!document.getElementById('fDsgvo').checked) { alert('Bitte Datenschutzerklärung bestätigen.'); return; }
+
+  const sel = products.filter((_, i) => document.getElementById('dc_' + i)?.classList.contains('checked'));
+  if (!sel.length) { alert('Bitte mindestens ein Gerät auswählen.'); return; }
+
+  const firma    = document.getElementById('fFirma').value.trim();
+  const name     = document.getElementById('fName').value.trim();
+  const strasse  = document.getElementById('fStrasse').value.trim();
+  const ort      = document.getElementById('fOrt').value.trim();
+  const tel      = document.getElementById('fTel').value.trim();
+  const email    = document.getElementById('fEmail').value.trim();
+  const nachricht = document.getElementById('fNachricht').value.trim();
+  const geraete  = sel.map(p => 'e-STUDIO ' + p.model).join(', ');
+
+  const btn = document.querySelector('#formContent .btn-primary');
+  const btnHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  btn.innerHTML = 'Wird gesendet \u2026';
+
+  try {
+    const response = await fetch(BUEMA_ORDER_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firma:      firma || '\u2013',
+        name,
+        strasse:    strasse || '\u2013',
+        ort:        ort || '\u2013',
+        telefon:    tel || '\u2013',
+        email,
+        produkt:    geraete,
+        menge:      'Anfrage',
+        preis:      'auf Anfrage',
+        bemerkungen: nachricht,
+        website:    ''
+      })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (response.ok && result.bestellnummer) {
+      document.getElementById('formContent').style.display = 'none';
+      document.getElementById('formSuccess').classList.add('show');
+    } else {
+      alert('Die Anfrage konnte nicht übermittelt werden' +
+        (result.error ? ' (' + result.error + ')' : '') +
+        '. Bitte rufen Sie uns an: 081 330 33 57.');
+    }
+  } catch (e) {
+    alert('Verbindungsfehler. Bitte prüfen Sie Ihre Verbindung oder rufen Sie uns an: 081 330 33 57.');
+  } finally {
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.innerHTML = btnHtml;
+  }
 }
 
 function navClick(e,el) {
